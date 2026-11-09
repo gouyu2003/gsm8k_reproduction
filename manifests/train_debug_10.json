@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "split": "train",
+  "purpose": "debug",
+  "dataset_sha256": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465",
+  "sampling": {
+    "algorithm": "random.Random(0).shuffle",
+    "seed": 0
+  },
+  "questions_sha256": "f0a43a533b26d98366a9716515f090ef3a47dd9ad539e9e7a50c51a9af7c56f0",
+  "records": [
+    {
+      "qid": "debug_0001",
+      "split": "train",
+      "source_line": 4531,
+      "question": "The result from the 40-item Statistics exam Marion and Ella took already came out. Ella got 4 incorrect answers while Marion got 6 more than half the score of Ella. What is Marion's score?",
+      "answer": "Ella's score is 40 items - 4 items = <<40-4=36>>36 items.\nHalf of Ella's score is 36 items / 2 = <<36/2=18>>18 items.\nSo, Marion's score is 18 items + 6 items = <<18+6=24>>24 items.\n#### 24",
+      "question_sha256": "d43048697c7c8607dc5812ae562573e0055dce7b52c93f3e63bff36c99afc36f"
+    },
+    {
+      "qid": "debug_0002",
+      "split": "train",
+      "source_line": 6018,
+      "question": "Stephen made 10 round trips up and down a 40,000 foot tall mountain. If he reached 3/4 of the mountain's height on each of his trips, calculate the total distance he covered.",
+      "answer": "Up a mountain, Stephen covered 3/4*40000 = <<3/4*40000=30000>>30000 feet.\nComing down, Stephen covered another 30000 feet, making the total distance covered in one round to be 30000+30000 = <<30000+30000=60000>>60000.\nSince Stephen made 10 round trips up and down the mountain, he covered 10*60000 = <<10*60000=600000>>600000\n#### 600000",
+      "question_sha256": "23e45f7b937a045fe2e5bd0b96fadb0cba7aa66bb6688b4d73ce68e6ffeff419"
+    },
+    {
+      "qid": "debug_0003",
+      "split": "train",
+      "source_line": 4121,
+      "question": "Bridget counted 14 shooting stars in the night sky.  Reginald counted two fewer shooting stars than did Bridget, but Sam counted four more shooting stars than did Reginald.  How many more shooting stars did Sam count in the night sky than was the average number of shooting stars observed for the three of them?",
+      "answer": "Reginald counted two fewer shooting stars than did Bridget, or a total of 14-2=<<14-2=12>>12 shooting stars.\nSam counted 4 more shooting stars than did Reginald, or a total of 12+4=16 shooting stars.\nThe average number of shooting stars observed for the three of them was (14+12+16)/3 = <<14=14>>14 shooting stars.\nThus, Sam counted 16-14=2 more shooting stars than was the average number of shooting stars observed for the three of them.\n#### 2",
+      "question_sha256": "743fe578d0c69f0c18518661117bc0f072e96a7dd4a4d21a34d7ca4dccf4c4f4"
+    },
+    {
+      "qid": "debug_0004",
+      "split": "train",
+      "source_line": 3209,
+      "question": "Sarah buys 20 pencils on Monday. Then she buys 18 more pencils on Tuesday. On Wednesday she buys triple the number of pencils she did on Tuesday. How many pencils does she have?",
+      "answer": "By adding together Monday and Tuesday, Saah has 20+18= <<20+18=38>>38 pencils\nOn Wednesday, she buys 3 * 18= <<3*18=54>>54 pencils\nAll together, Sarah has 38+54= <<38+54=92>>92 pencils\n#### 92",
+      "question_sha256": "748c51b5a610f01ce020b07df0def061993741f04fb54922636810b6c84f48a0"
+    },
+    {
+      "qid": "debug_0005",
+      "split": "train",
+      "source_line": 2586,
+      "question": "Rookie police officers have to buy duty shoes at the full price of $85, but officers who have served at least a year get a 20% discount. Officers who have served at least three years get an additional 25% off the discounted price. How much does an officer who has served at least three years have to pay for shoes?",
+      "answer": "Cops that served a year pay $85 * 0.2 = $<<85*0.2=17>>17 less.\nCops that served a year pay $85 - $17 = $<<85-17=68>>68.\nCops that served at least 3 years get a $68 * 0.25 = $<<68*0.25=17>>17 discount.\nCops that served at least 3 years pay $68 - $17 = $<<68-17=51>>51 for shoes.\n#### 51",
+      "question_sha256": "24aff0959d3a65e36fe24eddcee284a1c3e1d4966a53b477ccf52ce53916db72"
+    },
+    {
+      "qid": "debug_0006",
+      "split": "train",
+      "source_line": 3336,
+      "question": "The average score on last week's Spanish test was 90.  Marco scored 10% less than the average test score and Margaret received 5 more points than Marco.  What score did Margaret receive on her test?",
+      "answer": "The average test score was 90 and Marco scored 10% less so 90*.10 = <<90*.10=9>>9 points lower\nThe average test score was 90 and Marco scored 9 points less so his test score was 90-9 = <<90-9=81>>81\nMargret received 5 more points than Marco whose test score was 81 so she made 5+81 = <<5+81=86>>86 on her test\n#### 86",
+      "question_sha256": "eacc9b9eff4444823a6636ebb99c264cdcab54f7bc40ee39bd01227316f942f6"
+    },
+    {
+      "qid": "debug_0007",
+      "split": "train",
+      "source_line": 6925,
+      "question": "A third of the contestants at a singing competition are female, and the rest are male. If there are 18 contestants in total, how many of them are male?",
+      "answer": "There are 18/3 = <<18/3=6>>6 female contestants.\nThere are 18-6 = <<18-6=12>>12 male contestants.\n#### 12",
+      "question_sha256": "adf674d3c5a9119f8c593393120ad868d6031363204c769a13096b64cee24079"
+    },
+    {
+      "qid": "debug_0008",
+      "split": "train",
+      "source_line": 3844,
+      "question": "Nancy bought a pie sliced it into 8 pieces. She gave 1/2 to Joe and Darcy, and she gave 1/4 to Carl. How many slices were left?",
+      "answer": "The total number of slices she gave to Joe and Darcy is 1/2 x 8 = <<1/2*8=4>>4.\nThe total slice she gave to Carl is 1/4 x 8 = <<1/4*8=2>>2.\nTherefore, the total slices left is 8 - 4 - 2 = <<8-4-2=2>>2.\n#### 2",
+      "question_sha256": "1737a1f61feb84a2fde25f42c87078e48b46cf1f9de3201ad814e51f17f8d19d"
+    },
+    {
+      "qid": "debug_0009",
+      "split": "train",
+      "source_line": 4127,
+      "question": "Megan pays $16 for a shirt that costs $22 before sales. What is the amount of the discount?",
+      "answer": "Let x be the amount of the discount.\nWe have, 22 - x = $16\nWe change the writing of the equation:\n22 - x + x = 16 + x\nSo, 22 = 16 + x\nWe then Remove 16 from both sides:\n22 - 16 = 16 + x - 16\nSo, 22 - 16 = x\nSo, the amount of the discount is x = $<<6=6>>6.\n#### 6",
+      "question_sha256": "8aa07c24849ecc3b9c1d120e700f99cd07cfc88bf7dbe11eb71148e6dd3ab38d"
+    },
+    {
+      "qid": "debug_0010",
+      "split": "train",
+      "source_line": 5580,
+      "question": "Amaya scored 20 marks fewer in Maths than she scored in Arts. She also got 10 marks more in Social Studies than she got in Music. If she scored 70 in Music and scored 1/10 less in Maths, what's the total number of marks she scored in all the subjects?",
+      "answer": "The total marks Amaya scored more in Music than in Maths is 1/10 * 70 = <<1/10*70=7>>7 marks.\nSo the total marks she scored in Maths is 70 - 7 = <<70-7=63>>63 marks.\nIf she scored 20 marks fewer in Maths than in Arts, then he scored 63 + 20 = <<63+20=83>>83 in Arts.\nIf she scored 10 marks more in Social Studies than in Music, then she scored 70 + 10 = <<10+70=80>>80 marks in Social Studies.\nThe total number of marks for all the subjects is 70 + 63 + 83 + 80 = <<70+63+83+80=296>>296 marks.\n#### 296",
+      "question_sha256": "fdf6c9a7f5f0ef6d08403c3a5e73501c3a44da21c8100c5c5b3bf3bbed67c91e"
+    }
+  ],
+  "manifest_sha256": "69b9562ad8f6f7601848f6422a18182e205fa813fd2633f835a2f7b6dae9cc66"
+}

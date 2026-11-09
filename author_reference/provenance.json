@@ -1,0 +1,25 @@
+{
+  "author_commit": "9846749350eb917ae5bfaaff4c645fc705b8d3af",
+  "author_files": {
+    "gsm/gen_gsm.py": {
+      "git_blob_lf": "affc073fe2d6718a5c0ca3c02921bc82616671fe",
+      "sha256": "a140894f794a57032fe0e447e8cab6eb1b134518beb1e8fd6ed86355effc6f3e"
+    },
+    "gsm/eval_gsm.py": {
+      "git_blob_lf": "7715569d55120e0d9da39df23b7f251ca992b72d",
+      "sha256": "0f495a2860d9507071641613e42101e7804b2f3da1b9f6a0f22a92cbceb268b0"
+    },
+    "requirements.txt": {
+      "git_blob_lf": "2d176347ff0684f996e30e8b479fc0c7d6b90914",
+      "sha256": "628951ff720d3fbc06521f5ee32071e8b0e5e84b08d01ab2e253b6bf065a2663"
+    },
+    "README.md": {
+      "git_blob_lf": "72804b8ac3621299022783e99a8384f96db52c56",
+      "sha256": "c06d28c2beb8ab3d72be956b8184b56f8564ca983ee5e1cf011aefcbc858c969"
+    }
+  },
+  "datasets": {
+    "train": "17f347dc51477c50d4efb83959dbb7c56297aba886e5544ee2aaed3024813465",
+    "test": "3730d312f6e3440559ace48831e51066acaca737f6eabec99bccb9e4b3c39d14"
+  }
+}

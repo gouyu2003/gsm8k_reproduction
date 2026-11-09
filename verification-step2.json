@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-09",
+  "recorded_at": "2026-11-09T09:57:02.719165+00:00",
+  "step": 2,
+  "implementation": "complete",
+  "basic_offline_tests": {
+    "passed": 22,
+    "failed": 0,
+    "command": "python -m unittest discover -s tests -v"
+  },
+  "sdk": "openai==1.109.1",
+  "python": "3.12.10",
+  "real_model_requests": 0,
+  "cli_smoke": {
+    "run_directory": "runs\\step2-offline-smoke-final-20261109",
+    "samples": 2,
+    "tasks": 8,
+    "fake_generations": 30,
+    "repeated_resume_new_generations": 0,
+    "profile_sha256": "1bf31f086b0306628c17e54c32078c25bb50cc1d231bd394dcc53e50acaec4a2"
+  },
+  "manifest_hashes": {
+    "questions_100.json": "c6fe712c696ce690f0b7df3e7792f465869c991aa7bd7d39db4bbe2f11e6d01c",
+    "train_calibration_30.json": "af1bf2a45dded5ff5c1a2150116f4b54fb5ad29daec9176145af52fbf0ac50e0",
+    "train_debug_10.json": "69b9562ad8f6f7601848f6422a18182e205fa813fd2633f835a2f7b6dae9cc66"
+  },
+  "reference_integrity": {
+    "checked": 6,
+    "changed": 0
+  },
+  "later_stages": {
+    "step3_full_acceptance": "pending",
+    "step4_real_model_validation": "not_started",
+    "step5_platform_integration": "not_started",
+    "formal_freeze": "not_done"
+  },
+  "note": "Fake outputs are not research accuracy evidence. No credentials or QA .env were read."
+}
