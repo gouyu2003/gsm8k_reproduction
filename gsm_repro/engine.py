@@ -15,7 +15,7 @@ from .budget import Budget, BudgetStop
 from .common import atomic_json, digest, file_hash, execution_lock, utcnow
 from .config import METHODS, validate, request
 from .manifests import load_manifest
-from .scoring import score_all, failed_scores
+from .scoring import score_all, failed_scores, SCORING_VERSION
 from .storage import Store
 
 
@@ -45,6 +45,7 @@ def create_run(project, directory, config, manifest_path, *, limit=None):
     selected = manifest["records"][:limit] if limit else manifest["records"]
     profile = dict(schema_version=1,config=copy.deepcopy(config),manifest_sha256=manifest["manifest_sha256"],
         selection=[r["qid"] for r in selected],identity=identity(project),prompt_sha256=prompts.fingerprint(),
+        scoring_version=SCORING_VERSION,
         methods={k:dict(agents=METHODS[k][0],rounds=METHODS[k][1]) for k in config["methods"]})
     seeds = {}
     for repeat in range(config["repeats"]):
@@ -99,6 +100,16 @@ def complete_task(store,task,row,project,*,duration_ms=None):
     agents, rounds = METHODS[task["method"]]
     calls = [c for c in store.calls(task["task_key"]) if c["status"] == "completed"]
     logical = {(c["round"],c["agent"]):c for c in calls}
+    expected = {(round_, agent) for round_ in range(rounds) for agent in range(agents)}
+    if not set(logical) <= expected or len(logical) != len(calls):
+        raise ValueError("Saved completed calls have invalid or duplicate agent/round slots")
+    for (round_, agent), call in logical.items():
+        if call["logical_key"] != f"{task['task_key']}:{round_}:{agent}":
+            raise ValueError("Saved call identity differs from its agent/round slot")
+        if not call["response"] or not isinstance(call["response"].get("content"), str):
+            raise ValueError("Saved completed call has no valid response content")
+        if call["response"].get("reasoning_state") == "nonempty":
+            raise CallFailure("unexpected_reasoning_mode")
     if len(logical) != agents*rounds:
         return False
     outputs = [logical[(rounds-1,a)]["response"]["content"] for a in range(agents)]
@@ -118,10 +129,24 @@ def fail_task(store,task,row,status,error,*,duration_ms=None):
 def reconcile(store,rows,project):
     # The caller owns the OS execution lock: no living writer can be mistaken for an orphan.
     store.mark_unknown_calls()
+    blocked = None
     for task in store.tasks():
         if task["status"] == "running":
-            if not complete_task(store,task,rows[task["qid"]],project):
-                fail_task(store,task,rows[task["qid"]],"interrupted","Unconfirmed execution; not automatically replayed")
+            try:
+                if not complete_task(store,task,rows[task["qid"]],project):
+                    fail_task(store,task,rows[task["qid"]],"interrupted","Unconfirmed execution; not automatically replayed")
+            except CallFailure as exc:
+                fail_task(store,task,rows[task["qid"]],"failed",exc.document["category"])
+                blocked = "Saved response violates the frozen model conditions; inspect records before continuing"
+    return blocked
+
+
+def execution_summary(store, config, processed, blocked):
+    tasks = store.tasks()
+    return dict(processed=processed,blocked=blocked,
+                counts={status:sum(t["status"]==status for t in tasks)
+                    for status in ("pending","running","completed","failed","interrupted")},
+                backend=config["backend"],actual_model_requests=len(store.calls()) if config["backend"] == "openai_compatible" else 0)
 
 
 def execute(project,directory,*,allow_model_calls=False,allow_test_evaluation=False,backend=None,max_tasks=None):
@@ -137,7 +162,9 @@ def execute(project,directory,*,allow_model_calls=False,allow_test_evaluation=Fa
         raise ValueError("Injected backend must match frozen profile")
     with execution_lock(directory):
         rows = {r["qid"]:r for r in manifest["records"]}
-        reconcile(store,rows,project)
+        recovery_block = reconcile(store,rows,project)
+        if recovery_block:
+            return execution_summary(store,config,0,recovery_block)
         budget = Budget(project,config) if real else None
         backend = backend or (OpenAICompatibleBackend(config,allow_model_calls=True) if real else FakeBackend())
         if real:
@@ -214,8 +241,4 @@ def execute(project,directory,*,allow_model_calls=False,allow_test_evaluation=Fa
                         exc.document["category"] in ("unexpected_reasoning_mode","configuration_error","quota_error")):
                     blocked = "Unconfirmed request or incompatible model conditions; inspect records before continuing"
                     break
-        tasks = store.tasks()
-        return dict(processed=processed,blocked=blocked,
-                    counts={status:sum(t["status"]==status for t in tasks)
-                        for status in ("pending","running","completed","failed","interrupted")},
-                    backend=config["backend"],actual_model_requests=sum(1 for _ in store.calls()) if real else 0)
+        return execution_summary(store,config,processed,blocked)

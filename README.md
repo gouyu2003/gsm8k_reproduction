@@ -1,8 +1,8 @@
-# GSM8K 四组复现核心（第二步）
+# GSM8K 四组复现核心（第三步离线验收）
 
 独立实现 Du et al. 的 GSM8K 方法结构，作者仓库与原 QA 平台业务代码保持原样。本目录包含独立 Python 3.12.10 环境，SDK 为 openai 1.109.1，全部实际依赖见 requirements-repro.txt。
 
-当前只完成第二步实现与基本离线验证。还没有正式完成第三步集中验收、第四步真实模型验证或第五步平台接入；假模型分数不能作为论文复现效果。
+第二步执行核心和第三步集中离线验收已完成：42 项测试通过，10 道训练调试题的四组 CLI 检查完成 40 项任务、150 次假模型生成；重复恢复不新增调用。第四步真实模型验证、第五步平台接入和正式冻结尚未开始；假模型分数不能作为论文复现效果。验证详情见 `docs/离线自检-20261109.md` 和 `verification-step3.json`。
 
 ## 已有功能
 
@@ -10,6 +10,7 @@
 - 作者三处提示词逐字保留；串行调用，每轮只读取同伴上一轮快照，保留自身历史。
 - 固定 train 调试10题、train校准30题、test正式100题及哈希；不修改原始数据。
 - 作者脚本原样评分（隔离其全局变量）、fixed评分、平票判错与精确比较两个独立敏感性变体。
+- fixed v2 按精确数值合并 `1`、`1.0`、`1.00` 等价票；比较容差不用于合并不同数值。作者原样评分继续保留其原投票行为，版本写入新配置与报告。
 - 每次实际尝试先保存请求，再保存回复、状态、用量、耗时和关联编号；不把标准答案传给模型。
 - 固定本地执行配置、源码/依赖指纹与逐调用seed清单；运行后条件改变时拒绝继续旧任务。
 - 逐题持久化；resume只继续pending任务，failed/interrupted不自动重跑。结果不明请求保留unknown，全部回复已落盘但终态未保存时可核对恢复。
@@ -55,6 +56,15 @@ development.real.example.json只是待配置示例，本次没有执行它。未
 
 ## 验证与后续
 
+推荐使用完整离线验收入口，自动校验原始数据/作者文件，运行全部测试与 CLI 保存、恢复、报告、重新评分流程。每个 Python 子进程均启用 socket/DNS 网络拦截；SDK 路径仅使用 MockTransport：
+
+~~~powershell
+$env:GSM_REPRO_DISABLE_MODEL_CALLS = '1'
+.\.venv\Scripts\python.exe -B scripts\verify_offline.py
+~~~
+
+产物默认写入新的 `runs/step3-offline-<时间>/`，包含验证 JSON、测试日志和完整假模型轨迹。原作者目录和数据目录默认与本仓库并列，也可通过 `--author`、`--data` 显式指定。单独运行单元测试：
+
 ~~~powershell
 $env:GSM_REPRO_DISABLE_MODEL_CALLS = '1'
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
@@ -62,4 +72,4 @@ $env:GSM_REPRO_DISABLE_MODEL_CALLS = '1'
 
 测试统一拦截socket/DNS；SDK验证仅使用httpx.MockTransport，不连接本地或外部模型服务。当前测试针对新核心，不运行原QA完整回归。独立环境可用 requirements-repro.txt重建；作者/数据的核对记录在author_reference/provenance.json。
 
-下一步是第三步的集中离线验收，然后才是第四步训练题真实验证；平台接入留在第五步，正式冻结和平台100题运行依次在第六、七步。
+下一步是第四步训练题真实验证，需要用户明确启动真实调用，并核验价格、供应商参数、seed 和关闭 reasoning 的实际效果。离线通过不会把 `parameters_verified` 或价格确认改为 true。平台接入留在第五步，正式冻结和平台100题运行依次在第六、七步。

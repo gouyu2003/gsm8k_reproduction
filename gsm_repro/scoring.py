@@ -10,6 +10,7 @@ from .common import file_hash
 NUMBER = re.compile(r"[+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|\.\d+)")
 TOKEN = re.compile(r"(?<![\w.,])" + NUMBER.pattern + r"(?![\w.,])")
 AUTHOR_FUNCTIONS = {"solve_math_problems", "parse_answer", "compute_accuracy", "most_frequent"}
+SCORING_VERSION = "gsm8k-fixed-v2-numeric-vote"
 
 
 def number(text):
@@ -68,13 +69,23 @@ def parse_prediction(text):
     return number(matches[-1].group()) if matches else None
 
 
+def vote_key(value):
+    """Merge exactly equal numbers without Decimal.normalize() rounding long values."""
+    decimal = Decimal(value)
+    if decimal == 0:
+        return "0"
+    rendered = format(decimal, "f")
+    return rendered.rstrip("0").rstrip(".") if "." in rendered else rendered
+
+
 def fixed_score(gold, outputs, *, tie_error=False, exact=False):
     target = parse_gold(gold)
     parsed = [parse_prediction(output) for output in outputs]
-    valid = [v for v in parsed if v is not None]
+    valid = [vote_key(v) for v in parsed if v is not None]
     counts = Counter(valid)
     if not valid:
-        return dict(correct=0, prediction=None, parsed=parsed, parse_failure=True, tie=False, votes={})
+        return dict(correct=0, prediction=None, parsed=parsed, parse_failure=True, tie=False, votes={},
+                    scoring_version=SCORING_VERSION)
     top = max(counts.values())
     winners = [v for v in valid if counts[v] == top]
     prediction = winners[0]  # Agent order, not sorted numeric order.
@@ -85,7 +96,7 @@ def fixed_score(gold, outputs, *, tie_error=False, exact=False):
                        len(b.as_tuple().digits) + abs(b.as_tuple().exponent) + 2)
         correct = a == b if exact else abs(a-b) <= Decimal("0.000001")
     return dict(correct=int(correct and not (tie_error and tie)), prediction=prediction,
-                parsed=parsed, parse_failure=False, tie=tie, votes=dict(counts))
+                parsed=parsed, parse_failure=False, tie=tie, votes=dict(counts), scoring_version=SCORING_VERSION)
 
 
 def author_score(gold, outputs, reference):
@@ -116,7 +127,8 @@ def score_all(gold, outputs, reference):
 
 
 def failed_scores():
-    base = dict(correct=0, status="execution_failure", prediction=None, parse_failure=False)
+    base = dict(correct=0, status="execution_failure", prediction=None, parse_failure=False,
+                scoring_version=SCORING_VERSION)
     return {"author_faithful": dict(correct=None, status="not_scored_execution_failure"),
             **{name: dict(base) for name in ("fixed", "sensitivity.tie_error", "sensitivity.exact")}}
 

@@ -25,6 +25,7 @@ def export_report(project,directory):
     complete = all(t["status"] in ("completed","failed","interrupted") for t in store.tasks())
     calls = store.calls()
     report = dict(schema_version=1,backend=profile["config"]["backend"],complete=complete,
+        scoring_version=profile.get("scoring_version", "gsm8k-fixed-v1-string-vote"),
         profile_sha256=profile["profile_sha256"],manifest_sha256=profile["manifest_sha256"],
         methods=summary(results),request_attempts=len(calls),
         actual_model_requests=len(calls) if profile["config"]["backend"] == "openai_compatible" else 0,

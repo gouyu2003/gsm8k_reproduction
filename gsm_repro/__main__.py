@@ -7,7 +7,7 @@ from .common import atomic_json
 from .engine import create_run,execute,load_run
 from .manifests import prepare
 from .reporting import export_report
-from .scoring import score_all,failed_scores
+from .scoring import score_all,failed_scores,SCORING_VERSION
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -57,7 +57,8 @@ def main(argv=None):
                       if r["status"] == "completed" else failed_scores()) for r in values]
         if args.output.exists():
             raise ValueError("Choose a new scoring output file; do not overwrite existing evidence")
-        atomic_json(args.output,dict(scoring_source="current core; original result file unchanged",results=value))
+        atomic_json(args.output,dict(scoring_source="current core; original result file unchanged",
+                                    scoring_version=SCORING_VERSION,results=value))
         value = dict(output=str(args.output),samples=len(values),model_calls=0)
     print(json.dumps(value,ensure_ascii=True,indent=2,allow_nan=False))
     return 0
