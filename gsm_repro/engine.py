@@ -143,10 +143,16 @@ def reconcile(store,rows,project):
 
 def execution_summary(store, config, processed, blocked):
     tasks = store.tasks()
-    return dict(processed=processed,blocked=blocked,
+    calls = store.calls()
+    result = dict(processed=processed,blocked=blocked,
                 counts={status:sum(t["status"]==status for t in tasks)
                     for status in ("pending","running","completed","failed","interrupted")},
-                backend=config["backend"],actual_model_requests=len(store.calls()) if config["backend"] == "openai_compatible" else 0)
+                backend=config["backend"],actual_model_requests=len(calls) if config["backend"] == "openai_compatible" else 0)
+    if calls and calls[-1]["error"]:
+        result["last_failure"] = {key:calls[-1][key] for key in
+            ("request_call_id","task_key","agent","round","attempt")}
+        result["last_failure"].update(calls[-1]["error"])
+    return result
 
 
 def execute(project,directory,*,allow_model_calls=False,allow_test_evaluation=False,backend=None,max_tasks=None):

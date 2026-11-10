@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from . import config
 from .common import atomic_json
+from .budget import budget_status, reconcile_budget
 from .engine import create_run,execute,load_run
 from .manifests import prepare
 from .reporting import export_report
@@ -35,9 +36,22 @@ def main(argv=None):
     p = sub.add_parser("score",help="Rescore saved outputs offline; retain original run scores")
     p.add_argument("--input",type=Path,required=True)
     p.add_argument("--output",type=Path,required=True)
+    p = sub.add_parser("budget-status",help="Inspect a campaign ledger read-only; no model calls")
+    p.add_argument("--campaign-id",required=True)
+    p = sub.add_parser("budget-reconcile",help="Preview a verified charge; apply only with --confirm-billing")
+    p.add_argument("--campaign-id",required=True)
+    p.add_argument("--request-id",required=True,help="Local request_call_id from calls.jsonl, not provider Request ID")
+    p.add_argument("--actual-cny",required=True,help="Verified actual charge, including an explicitly confirmed zero")
+    p.add_argument("--evidence",required=True,help="Bill/support reference and verification basis; no API keys")
+    p.add_argument("--confirm-billing",action="store_true",help="Confirm verified billing and apply the previewed change")
     args = parser.parse_args(argv)
     if args.command == "prepare":
         value = prepare(args.data,args.author,ROOT)
+    elif args.command == "budget-status":
+        value = budget_status(ROOT,args.campaign_id)
+    elif args.command == "budget-reconcile":
+        value = reconcile_budget(ROOT,args.campaign_id,args.request_id,args.actual_cny,args.evidence,
+                                 confirm_billing=args.confirm_billing)
     elif args.command == "plan":
         value = create_run(ROOT,args.run_dir,config.load(args.config),args.manifest,limit=args.limit)
     elif args.command in ("run","resume"):

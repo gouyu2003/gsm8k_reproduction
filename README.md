@@ -2,7 +2,7 @@
 
 独立实现 Du et al. 的 GSM8K 方法结构，作者仓库与原 QA 平台业务代码保持原样。本目录包含独立 Python 3.12.10 环境，SDK 为 openai 1.109.1，全部实际依赖见 requirements-repro.txt。
 
-第二步执行核心和第三步集中离线验收已完成：42 项测试通过，10 道训练调试题的四组 CLI 检查完成 40 项任务、150 次假模型生成；重复恢复不新增调用。第四步真实模型验证、第五步平台接入和正式冻结尚未开始；假模型分数不能作为论文复现效果。验证详情见 `docs/离线自检-20261109.md` 和 `verification-step3.json`。
+第二步执行核心和第三步集中离线验收已完成：原验收 42 项测试通过，10 道训练调试题的四组 CLI 检查完成 40 项任务、150 次假模型生成；重复恢复不新增调用。2026-11-10 失败恢复修复与流式传输支持后共 66 项测试通过。第四步训练题真实验证已完成：DeepSeek 主臂 10 题调试与 30 题校准、Qwen3.5 单题与 30 题校准；Qwen 准确率高于预定弱臂上限，本轮仅推进 DeepSeek 主臂。第五步平台接入和正式冻结尚未开始。假模型与训练题分数不能作为正式 test 复现效果。原验收见 `docs/离线自检-20261109.md` 和 `verification-step3.json`，本轮修复见 `docs/失败恢复修复-20261110.md`，第四步记录见 `docs/第四步训练验证-20261110.md`。
 
 ## 已有功能
 
@@ -53,6 +53,14 @@ development.real.example.json只是待配置示例，本次没有执行它。未
 真实执行同时要求backend=openai_compatible、显式--allow-model-calls、进程未设置GSM_REPRO_DISABLE_MODEL_CALLS=1，并通过价格/预算检查。正式test还要求formal阶段、已验证参数、正式条件哈希和--allow-test-evaluation；开发配置不能拿test启动。重试、探测、校准和正式运行必须共用本轮campaign_id，不能靠新目录重置20元预算。
 
 供应商seed、关闭reasoning的效果、版本身份及费用仍需训练题真实验证。遇到不支持的参数不静默降级；reasoning_content仅记录缺失/null/空/非空状态，不保存独立隐藏reasoning文本。未知费用须核对后再处理，不自动重发。
+
+## 失败诊断与预算核对（2026-11-10 修复）
+
+HTTP 失败现在保存供应商错误码、消息、类型、参数位置及可用的 Request ID；错误字段脱敏并限长，写入调用数据库及 `calls.jsonl`，终端摘要增加 `last_failure`。单字符或含空白的 Key 会在构造 SDK 前拒绝。旧运行缺失的错误消息无法补回。
+
+`budget-status --campaign-id <id>` 只读查看账本。`budget-reconcile --campaign-id <id> --request-id <本地调用编号> --actual-cny <已核实金额> --evidence <核对依据>` 默认只预览；增加 `--confirm-billing` 才备份账本并原子写入金额及核对审计记录。仅处理 `unknown`，不处理活动请求、不重置上限、不自动推断零费用，也不启动模型。核对命令不读取 Key。
+
+源码修复后，应保留旧失败目录，按原配置在新目录重新 `plan`，继续共用原 `campaign_id`。详细边界和操作见 `docs/失败恢复修复-20261110.md`。
 
 ## 验证与后续
 

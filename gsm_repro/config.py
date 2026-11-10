@@ -16,8 +16,10 @@ DEFAULT = dict(schema_version=1, backend="fake", stage="development",
 
 
 def validate(value):
-    if set(value) != set(DEFAULT):
-        raise ValueError("Config fields differ from contract: " + str(sorted(set(value) ^ set(DEFAULT))))
+    if not set(DEFAULT) <= set(value) or set(value) - set(DEFAULT) - {"stream"}:
+        raise ValueError("Config fields differ from contract")
+    if "stream" in value and not isinstance(value["stream"], bool):
+        raise ValueError("stream must be a boolean")
     if value["schema_version"] != 1 or value["backend"] not in ("fake", "openai_compatible"):
         raise ValueError("Unsupported schema/backend")
     if value["stage"] not in ("development", "formal"):
@@ -49,7 +51,9 @@ def load(path):
 def request(config, messages, call_key):
     fields = dict(model=config["model"], messages=messages, temperature=config["temperature"],
                   top_p=config["top_p"], max_tokens=config["max_tokens"], n=1,
-                  stream=False, extra_body=config["extra_body"])
+                  stream=config.get("stream", False), extra_body=config["extra_body"])
+    if fields["stream"]:
+        fields["stream_options"] = {"include_usage": True}
     if config["seed_mode"] == "per_call":
         fields["seed"] = int(digest([config["seed_base"], call_key])[:15], 16) % (2**31-1)
     return fields
